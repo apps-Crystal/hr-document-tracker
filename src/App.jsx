@@ -14,7 +14,7 @@ function App() {
   const [showToast, setShowToast] = useState(false);
   const [modalData, setModalData] = useState({ show: false, name: '', docs: [] });
 
-  const [API_URL, setApiUrl] = useState(import.meta.env.VITE_API_URL || 'YOUR_APP_SCRIPT_WEB_APP_URL_HERE');
+  const [API_URL, setApiUrl] = useState(import.meta.env.VITE_API_URL || 'https://script.google.com/macros/s/AKfycbxUc9kG9nBzXfsrYVDFF2z5yiPWUP3c-vqgvP_unva6SoWgJZ_Ri3qlh6ZlBj7ZL23f/exec');
   const [isApiConfigured, setIsApiConfigured] = useState(false);
 
   useEffect(() => {
@@ -40,6 +40,43 @@ function App() {
     localStorage.setItem('theme', newTheme);
   };
 
+  const processData = (rawData) => {
+    return rawData.map(row => {
+      const missingDocs = [];
+      const checkDoc = (key, label) => {
+        if (!row[key] || String(row[key]).trim() === '') {
+          missingDocs.push(label);
+        }
+      };
+
+      checkDoc('Pan Card for ID Proof', 'Pan Card');
+      checkDoc('Aadhaar Card and Voter Card Both Side ( for Address Proof )', 'Aadhaar / Voter Card');
+      checkDoc('Educational Qualification Documents uploading', 'Educational Documents');
+      checkDoc('Upload Passport Size Photo', 'Passport Photo');
+
+      if (row['Do you have any work experience?'] === 'YES') {
+        checkDoc('Upload Experience Certificate ( releasing Letter)', 'Experience Certificate');
+        checkDoc('3 Months Salary Slip / Offer Letter (Of last organization, if applicable)', 'Salary Slip / Offer Letter');
+      }
+
+      checkDoc('Updated Bank statement Last three months', 'Bank Statement');
+      checkDoc('Bank Passbook / Cancelled Cheque (For salary account verification)', 'Cancelled Cheque');
+      checkDoc('Medical Fitness Certificate', 'Medical Fitness Certificate');
+
+      if (row['Marital Status'] === 'Married') {
+        checkDoc('Marriage certificate', 'Marriage Certificate');
+      }
+
+      return {
+        name: row['Full Name'] || 'Unknown',
+        email: row['Email address'] || '',
+        designation: row['Current Designation'] || row['Designation'] || '',
+        mobile: row['Mobile Number'] || row['Gender'] || '',
+        missingDocs: missingDocs
+      };
+    }).filter(c => c.name !== 'Unknown'); // simple filter to avoid completely empty rows
+  };
+
   const fetchCandidateData = async () => {
     setLoading(true);
     setError('');
@@ -49,9 +86,17 @@ function App() {
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
 
-      if (!data.success) throw new Error(data.error || 'Failed to fetch data');
+      if (data.error) throw new Error(data.error);
 
-      setCandidates(data.data || []);
+      // Since your app script returns an array directly
+      if (Array.isArray(data)) {
+        setCandidates(processData(data));
+      } else if (data.data && Array.isArray(data.data)) {
+        setCandidates(processData(data.data));
+      } else {
+        throw new Error('Data format isn\'t recognized');
+      }
+
     } catch (err) {
       setError(`Failed to fetch data: ${err.message}. Please check your App Script URL and CORS configuration.`);
     } finally {
@@ -80,6 +125,12 @@ function App() {
       const data = await response.json();
       if (data.success) {
         setToastMessage(`Reminder sent successfully to ${candidate.name}!`);
+        // Mark candidate as having received a reminder in the UI
+        setCandidates(prevCandidates =>
+          prevCandidates.map(c =>
+            c.email === candidate.email ? { ...c, lastReminderSentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) } : c
+          )
+        );
       } else {
         setToastMessage(`Failed to send reminder: ${data.error}`);
       }
@@ -181,7 +232,7 @@ function App() {
                     <th>EMAIL</th>
                     <th>MOBILE</th>
                     <th>MISSING DOCUMENTS</th>
-                    <th style={{ textAlign: 'right' }}>ACTION</th>
+                    <th style={{ textAlign: 'center' }}>ACTION</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -221,13 +272,22 @@ function App() {
                           )}
                         </div>
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td style={{ textAlign: 'center' }}>
                         {candidate.missingDocs.length > 0 ? (
-                          <button className="btn-primary" onClick={() => sendReminder(candidate)}>
-                            Send Reminder
-                          </button>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                            <button className="btn-primary" onClick={() => sendReminder(candidate)}>
+                              <span>Send</span>
+                              <span>Reminder</span>
+                            </button>
+                            {candidate.lastReminderSentAt && (
+                              <div style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                Sent at {candidate.lastReminderSentAt}
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <span style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                          <span style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', justifyContent: 'center' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             Done
                           </span>

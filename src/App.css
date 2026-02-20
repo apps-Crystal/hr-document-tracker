@@ -1,14 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --bg-color: #f8fafc;
+  --primary-color: #315cd5; /* Blue from button */
+  --primary-hover: #214bbb;
+  --bg-color: #f0f5fa; /* Very light blue background */
   --card-bg: #ffffff;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --header-blue: #1e3a8a;
-  --pill-bg: #fee2e2;
-  --pill-text: #b91c1c;
-  --border-color: #e2e8f0;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --header-blue: #1c4bb4; /* Blue table headers */
+  --pill-bg: #fdeaea; /* Light red/pink pill */
+  --pill-text: #cc1d1d; /* Dark red pill text */
+  --border-color: #f0f3f6; /* Faint gray row dividers */
   --transition: all 0.2s ease;
 }
 
@@ -57,11 +59,15 @@ header {
 }
 
 h1 {
-  color: var(--header-blue);
+  color: var(--text-primary);
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0;
+}
+
+[data-theme="dark"] h1 {
+  color: #fff;
 }
 
 .theme-toggle {
@@ -115,7 +121,7 @@ h1 {
 
 .search-container input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(49, 92, 213, 0.15);
 }
 
 .file-upload-container {
@@ -130,8 +136,9 @@ h1 {
   background: var(--card-bg);
   padding: 1.5rem 2rem;
   border-radius: 8px;
-  border: 1px dashed var(--border-color);
+  border: 1px solid var(--border-color);
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .btn-secondary {
@@ -153,8 +160,8 @@ h1 {
 
 .table-card {
   background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  border-radius: 6px; /* slightly squarish matching modern tight designs */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); /* softer shadow */
   overflow: hidden;
   animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -173,20 +180,20 @@ table {
 th {
   background-color: var(--card-bg);
   color: var(--header-blue);
-  font-size: 0.75rem;
+  font-size: 0.8rem; /* prominent headers */
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1.25rem 1.5rem;
+  letter-spacing: 0.03em;
+  padding: 1.5rem 1.5rem;
   border-bottom: 2px solid var(--border-color);
 }
 
 td {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
-  vertical-align: middle;
+  vertical-align: middle; /* Middle align cells */
   color: var(--text-primary);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 tr {
@@ -195,7 +202,11 @@ tr {
 }
 
 tr:hover {
-  background-color: var(--border-color);
+  background-color: #fafbfc;
+}
+
+[data-theme="dark"] tr:hover {
+  background-color: #334155;
 }
 
 tr:last-child td {
@@ -205,31 +216,38 @@ tr:last-child td {
 .candidate-name {
   font-weight: 500;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
 }
 
 .candidate-email {
   color: var(--text-secondary);
-  font-size: 0.875rem;
 }
 
 .pills-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  max-width: 320px;
-  white-space: normal;
+  flex-direction: column; /* Stacked pills as in screenshot */
+  align-items: flex-start;
+  gap: 0.75rem;
+  max-width: 250px;
 }
 
 .pill {
   background-color: var(--pill-bg);
   color: var(--pill-text);
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px; /* Rounded pill style */
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
   display: inline-block;
+  line-height: 1.2;
+  white-space: normal; /* allow wrapping in pill */
+  text-align: left;
+  max-width: 140px; 
+  /* The line breaks inside pill from screenshot */
+}
+
+/* For multi-word docs, ensure word break looks good */
+.pill br {
+  display: none; /* fallback */
 }
 
 .all-good {
@@ -243,10 +261,15 @@ tr:last-child td {
 }
 
 .more-pill {
-  background-color: var(--border-color) !important;
-  color: var(--text-primary) !important;
+  background-color: #e2e8f0 !important;
+  color: #475569 !important;
   cursor: pointer;
   transition: filter 0.2s;
+}
+
+[data-theme="dark"] .more-pill {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
 .more-pill:hover {
@@ -257,26 +280,27 @@ tr:last-child td {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-family: inherit;
   cursor: pointer;
   transition: var(--transition);
   display: inline-flex;
+  flex-direction: column; /* Stack Send Reminder text */
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  line-height: 1.2;
+  min-width: 90px;
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .loading-state,
@@ -400,37 +424,18 @@ tr:last-child td {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
@@ -439,15 +444,12 @@ tr:last-child td {
 }
 
 @keyframes fadeInRow {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
+/* Allow scrolling horizontally only on extremely small screens */
 @media (max-width: 1024px) {
-
-  th:nth-child(2),
-  td:nth-child(2) {
-    display: none;
+  .dashboard-container {
+    padding: 1rem 0.5rem;
   }
 }
