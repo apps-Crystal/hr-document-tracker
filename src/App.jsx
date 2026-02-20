@@ -149,12 +149,15 @@ function App() {
     });
   };
 
-  const filteredCandidates = candidates.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.mobile.includes(searchTerm)
-  );
+  const filteredCandidates = candidates.filter(c => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      String(c.name || '').toLowerCase().includes(searchLower) ||
+      String(c.email || '').toLowerCase().includes(searchLower) ||
+      String(c.designation || '').toLowerCase().includes(searchLower) ||
+      String(c.mobile || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <div className="dashboard-container">
