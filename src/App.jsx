@@ -71,7 +71,7 @@ function App() {
         name: row['Full Name'] || 'Unknown',
         email: row['Email address'] || '',
         designation: row['Current Designation'] || row['Designation'] || '',
-        mobile: row['Mobile Number'] || row['Gender'] || '',
+        mobile: row['Mobile Number'] || '',
         missingDocs: missingDocs
       };
     }).filter(c => c.name !== 'Unknown'); // simple filter to avoid completely empty rows
